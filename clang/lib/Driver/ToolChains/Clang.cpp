@@ -2785,6 +2785,19 @@ static void RenderFloatingPointOptions(const ToolChain &TC, const Driver &D,
                                     // overriden by ffp-exception-behavior?
   bool RoundingFPMath = false;
   bool RoundingMathPresent = false; // Is rounding-math in args?
+  LangOptions::ComplexRangeKind CxRangeArg =
+    LangOptions::CX_Full;
+  StringRef RulingRangeArg = "";
+  auto setCxRangeArg = [&CxRangeArg, &RulingRangeArg, &D, &Args](
+      LangOptions::ComplexRangeKind Kind, StringRef ArgName) {
+    if (!RulingRangeArg.empty() && Kind != CxRangeArg) {
+        D.Diag(clang::diag::warn_drv_overriding_option)
+               << Args.MakeArgString(RulingRangeArg)
+               << Args.MakeArgString(ArgName);
+    }
+    RulingRangeArg = ArgName;
+    CxRangeArg = Kind;
+  };
   // -ffp-model values: strict, fast, precise
   StringRef FPModel = "";
   // -ffp-exception-behavior options: strict, maytrap, ignore
@@ -3088,6 +3101,7 @@ static void RenderFloatingPointOptions(const ToolChain &TC, const Driver &D,
       // If fast-math is set then set the fp-contract mode to fast.
       FPContract = "fast";
       SeenUnsafeMathModeOption = true;
+      CxRangeArg = LangOptions::CX_NoNan;
       break;
     case options::OPT_fno_fast_math:
       HonorINFs = true;
@@ -3110,6 +3124,19 @@ static void RenderFloatingPointOptions(const ToolChain &TC, const Driver &D,
         } else if (SeenUnsafeMathModeOption)
           FPContract = "on";
       }
+      break;
+
+    case options::OPT_fcx_limited_range:
+      setCxRangeArg(LangOptions::CX_Limited, "fcx-limited-range");
+      break;
+    case options::OPT_fnocx_limited_range:
+      setCxRangeArg(LangOptions::CX_Full, "fcx-limited-range");
+      break;
+    case options::OPT_fcx_fortran_rules:
+      setCxRangeArg(LangOptions::CX_NoNan, "fcx-fortran-rules");
+      break;
+    case options::OPT_fnocx_fortran_rules:
+      setCxRangeArg(LangOptions::CX_Full, "fcx-fortran-rules");
       break;
     }
     if (StrictFPModel) {
@@ -3259,6 +3286,18 @@ static void RenderFloatingPointOptions(const ToolChain &TC, const Driver &D,
                    options::OPT_fno_use_complex_intrinsics,
                    DefaultUseComplexIntrinsics)) {
     CmdArgs.push_back("-fuse-complex-intrinsics");
+  }
+
+  switch (CxRangeArg) {
+  case LangOptions::CX_Limited:
+    CmdArgs.push_back("-fcx-range=limited");
+    break;
+  case LangOptions::CX_NoNan:
+    CmdArgs.push_back("-fcx-range=nonan");
+    break;
+  case LangOptions::CX_Full:
+    CmdArgs.push_back("-fcx-range=full");
+    break;
   }
 }
 

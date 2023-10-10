@@ -2484,6 +2484,16 @@ defm use_complex_intrinsics : BoolFOption<"use-complex-intrinsics",
           "Determines whether to lower _Complex operations to LLVM complex "
           "intrinsics">,
   NegFlag<SetFalse>>;
+def fcx_limited_range : Flag<["-"], "fcx-limited-range">, Group<f_Group>;
+def fnocx_limited_range : Flag<["-"], "fnocx-limited-range">, Group<f_Group>;
+def fcx_fortran_rules : Flag<["-"], "fcx-fortran-rules">, Group<f_Group>;
+def fnocx_fortran_rules : Flag<["-"], "fnocx-fortran-rules">, Group<f_Group>;
+def cx_rangeEQ : Joined<["-"], "fcx-range=">, Group<f_Group>, Visibility<[CC1Option]>,
+  HelpText<"Specifies the behavior of complex multiplication and division">,
+  Values<"limited,nonan,full">,
+  NormalizedValuesScope<"LangOptions">,
+  NormalizedValues<["CX_Limited", "CX_NoNan", "CX_Full"]>,
+  MarshallingInfoEnum<LangOpts<"ComplexRange">, "CX_Full">;
 
 def ffor_scope : Flag<["-"], "ffor-scope">, Group<f_Group>;
 def fno_for_scope : Flag<["-"], "fno-for-scope">, Group<f_Group>;
