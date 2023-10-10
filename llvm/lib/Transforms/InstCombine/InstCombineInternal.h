@@ -734,6 +734,10 @@ public:
   void handlePotentiallyDeadBlocks(SmallVectorImpl<BasicBlock *> &Worklist);
   void handlePotentiallyDeadSuccessors(BasicBlock *BB, BasicBlock *LiveSucc);
   void freelyInvertAllUsersOf(Value *V, Value *IgnoredUser = nullptr);
+
+  /// Try to match a complex intrinsic that produces the given real/imaginary
+  /// pair. Returns whether or not it was successful.
+  bool createComplexMathInstruction(Value *Real, Value *Imag);
 };
 
 class Negator final {
