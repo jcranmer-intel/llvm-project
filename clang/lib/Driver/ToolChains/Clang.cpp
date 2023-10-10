@@ -3242,6 +3242,24 @@ static void RenderFloatingPointOptions(const ToolChain &TC, const Driver &D,
   if (Args.hasFlag(options::OPT_fno_strict_float_cast_overflow,
                    options::OPT_fstrict_float_cast_overflow, false))
     CmdArgs.push_back("-fno-strict-float-cast-overflow");
+
+  // For now, only enable complex intrinsics by default if we know we can lower
+  // the call correctly in ExpandComplex.
+  bool DefaultUseComplexIntrinsics = false;
+  switch (TC.getArch()) {
+  case llvm::Triple::x86:
+  case llvm::Triple::x86_64:
+    DefaultUseComplexIntrinsics = true;
+    break;
+  default:
+    DefaultUseComplexIntrinsics = false;
+    break;
+  }
+  if (Args.hasFlag(options::OPT_fuse_complex_intrinsics,
+                   options::OPT_fno_use_complex_intrinsics,
+                   DefaultUseComplexIntrinsics)) {
+    CmdArgs.push_back("-fuse-complex-intrinsics");
+  }
 }
 
 static void RenderAnalyzerOptions(const ArgList &Args, ArgStringList &CmdArgs,

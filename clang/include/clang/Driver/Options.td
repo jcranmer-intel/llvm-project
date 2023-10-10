@@ -2478,6 +2478,13 @@ defm protect_parens : BoolFOption<"protect-parens",
           "floating-point expressions are evaluated">,
   NegFlag<SetFalse>>;
 
+defm use_complex_intrinsics : BoolFOption<"use-complex-intrinsics",
+  CodeGenOpts<"UseComplexIntrinsics">, DefaultFalse,
+  PosFlag<SetTrue, [], [ClangOption, CC1Option],
+          "Determines whether to lower _Complex operations to LLVM complex "
+          "intrinsics">,
+  NegFlag<SetFalse>>;
+
 def ffor_scope : Flag<["-"], "ffor-scope">, Group<f_Group>;
 def fno_for_scope : Flag<["-"], "fno-for-scope">, Group<f_Group>;
 

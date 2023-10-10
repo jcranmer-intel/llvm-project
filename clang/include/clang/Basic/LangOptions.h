@@ -311,6 +311,18 @@ public:
   /// Possible exception handling behavior.
   enum class ExceptionHandlingKind { None, SjLj, WinEH, DwarfCFI, Wasm };
 
+  /// Controls for the complex arithmetic range rules.
+  enum ComplexRangeKind {
+    /// Disable both NaN checks and scaling
+    CX_Limited,
+
+    /// Disable only NaN checks
+    CX_NoNan,
+
+    /// Require NaN checks and scaling,
+    CX_Full
+  };
+
   enum class LaxVectorConversionKind {
     /// Permit no implicit vector bitcasts.
     None,
@@ -718,6 +730,7 @@ public:
     setConstRoundingMode(LangOptions::RoundingMode::Dynamic);
     setSpecifiedExceptionMode(LO.getFPExceptionMode());
     setAllowFPReassociate(LO.AllowFPReassoc);
+    setComplexRange(LO.getComplexRange());
     setNoHonorNaNs(LO.NoHonorNaNs);
     setNoHonorInfs(LO.NoHonorInfs);
     setNoSignedZero(LO.NoSignedZero);
