@@ -27,7 +27,7 @@ private:
     // If all 7 bits are set, turn this into -1. If the number of bits grows,
     // this must be updated. This is intended to provide some forward binary
     // compatibility insurance for the meaning of 'fast' in case bits are added.
-    if (F == 0x7F) Flags = ~0U;
+    if ((F & 0x7F) == 0x7F) Flags = ~0U;
     else Flags = F;
   }
 
@@ -56,7 +56,7 @@ public:
 
   bool any() const { return Flags != 0; }
   bool none() const { return Flags == 0; }
-  bool all() const { return Flags == ~0U; }
+  bool all() const { return (Flags & 0x7f) == 0x7f; }
 
   void clear() { Flags = 0; }
   void set()   { Flags = ~0U; }
