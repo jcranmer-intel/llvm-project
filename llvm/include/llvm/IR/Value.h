@@ -76,12 +76,12 @@ class Value {
   unsigned char HasValueHandle : 1; // Has a ValueHandle pointing to this?
 
 protected:
-  /// Hold subclass data that can be dropped.
-  ///
-  /// This member is similar to SubclassData, however it is for holding
-  /// information which may be used to aid optimization, but which may be
-  /// cleared to zero without affecting conservative interpretation.
-  unsigned char SubclassOptionalData : 7;
+  // Use the same type as the bitfield above so that MSVC will pack them.
+  unsigned IsUsedByMD : 1;
+  unsigned HasName : 1;
+  unsigned HasMetadata : 1; // Has metadata attached to this?
+  unsigned HasHungOffUses : 1;
+  unsigned HasDescriptor : 1;
 
 private:
   /// Hold arbitrary subclass data.
@@ -107,12 +107,12 @@ protected:
   enum : unsigned { NumUserOperandsBits = 25 };
   unsigned NumUserOperands : NumUserOperandsBits;
 
-  // Use the same type as the bitfield above so that MSVC will pack them.
-  unsigned IsUsedByMD : 1;
-  unsigned HasName : 1;
-  unsigned HasMetadata : 1; // Has metadata attached to this?
-  unsigned HasHungOffUses : 1;
-  unsigned HasDescriptor : 1;
+  /// Hold subclass data that can be dropped.
+  ///
+  /// This member is similar to SubclassData, however it is for holding
+  /// information which may be used to aid optimization, but which may be
+  /// cleared to zero without affecting conservative interpretation.
+  unsigned SubclassOptionalData : 7;
 
 private:
   Type *VTy;
