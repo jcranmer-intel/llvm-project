@@ -104,7 +104,7 @@ protected:
   ///
   /// Note, this should *NOT* be used directly by any class other than User.
   /// User uses this value to find the Use list.
-  enum : unsigned { NumUserOperandsBits = 27 };
+  enum : unsigned { NumUserOperandsBits = 25 };
   unsigned NumUserOperands : NumUserOperandsBits;
 
   // Use the same type as the bitfield above so that MSVC will pack them.
