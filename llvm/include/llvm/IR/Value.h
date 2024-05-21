@@ -104,7 +104,7 @@ protected:
   ///
   /// Note, this should *NOT* be used directly by any class other than User.
   /// User uses this value to find the Use list.
-  enum : unsigned { NumUserOperandsBits = 25 };
+  enum : unsigned { NumUserOperandsBits = 20 };
   unsigned NumUserOperands : NumUserOperandsBits;
 
   /// Hold subclass data that can be dropped.
@@ -112,7 +112,7 @@ protected:
   /// This member is similar to SubclassData, however it is for holding
   /// information which may be used to aid optimization, but which may be
   /// cleared to zero without affecting conservative interpretation.
-  unsigned SubclassOptionalData : 7;
+  unsigned SubclassOptionalData : 12;
 
 private:
   Type *VTy;
