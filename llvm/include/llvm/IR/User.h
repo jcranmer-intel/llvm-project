@@ -45,6 +45,12 @@ class User : public Value {
   template <unsigned>
   friend struct HungoffOperandTraits;
 
+  template <typename, unsigned>
+  friend struct VariadicOperandTraits;
+
+  template <typename, unsigned>
+  friend struct OptionalOperandTraits;
+
   LLVM_ATTRIBUTE_ALWAYS_INLINE static void *
   allocateFixedOperandUser(size_t, unsigned, unsigned);
 

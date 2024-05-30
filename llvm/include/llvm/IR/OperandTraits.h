@@ -52,7 +52,7 @@ struct FixedNumOperandTraits {
 template <typename SubClass, unsigned ARITY = 1>
 struct OptionalOperandTraits : public FixedNumOperandTraits<SubClass, ARITY> {
   static unsigned operands(const User *U) {
-    return U->getNumOperands();
+    return U->NumUserOperands;
   }
 };
 
@@ -76,7 +76,7 @@ struct VariadicOperandTraits {
     return reinterpret_cast<Use*>(U);
   }
   static unsigned operands(const User *U) {
-    return U->getNumOperands();
+    return U->NumUserOperands;
   }
 };
 
@@ -100,7 +100,7 @@ struct HungoffOperandTraits {
     return U->getHungOffOperands() + U->getNumOperands();
   }
   static unsigned operands(const User *U) {
-    return U->getNumOperands();
+    return U->getNumHungOffOperands();
   }
 };
 
