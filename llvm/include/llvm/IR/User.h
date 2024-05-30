@@ -167,12 +167,12 @@ public:
   }
 
   Value *getOperand(unsigned i) const {
-    assert(i < NumUserOperands && "getOperand() out of range!");
+    assert(i < getNumOperands() && "getOperand() out of range!");
     return getOperandList()[i];
   }
 
   void setOperand(unsigned i, Value *Val) {
-    assert(i < NumUserOperands && "setOperand() out of range!");
+    assert(i < getNumOperands() && "setOperand() out of range!");
     assert((!isa<Constant>((const Value*)this) ||
             isa<GlobalValue>((const Value*)this)) &&
            "Cannot mutate a constant with setOperand!");
@@ -180,11 +180,11 @@ public:
   }
 
   const Use &getOperandUse(unsigned i) const {
-    assert(i < NumUserOperands && "getOperandUse() out of range!");
+    assert(i < getNumOperands() && "getOperandUse() out of range!");
     return getOperandList()[i];
   }
   Use &getOperandUse(unsigned i) {
-    assert(i < NumUserOperands && "getOperandUse() out of range!");
+    assert(i < getNumOperands() && "getOperandUse() out of range!");
     return getOperandList()[i];
   }
 
@@ -234,10 +234,10 @@ public:
   op_iterator       op_begin()       { return getOperandList(); }
   const_op_iterator op_begin() const { return getOperandList(); }
   op_iterator       op_end()         {
-    return getOperandList() + NumUserOperands;
+    return getOperandList() + getNumOperands();
   }
   const_op_iterator op_end()   const {
-    return getOperandList() + NumUserOperands;
+    return getOperandList() + getNumOperands();
   }
   op_range operands() {
     return op_range(op_begin(), op_end());
