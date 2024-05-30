@@ -72,8 +72,12 @@ protected:
 
   User(Type *ty, unsigned vty, Use *, unsigned NumOps)
       : Value(ty, vty) {
-    assert(NumOps < (1u << NumUserOperandsBits) && "Too many operands");
-    NumUserOperands = NumOps;
+    if (HasHungOffUses) {
+      getHungOffData().NumOperands = NumOps;
+    } else {
+      assert(NumOps < (1u << NumUserOperandsBits) && "Too many operands");
+      NumUserOperands = NumOps;
+    }
     // If we have hung off uses, then the operand list should initially be
     // null.
     assert((!HasHungOffUses || !getOperandList()) &&
@@ -138,11 +142,26 @@ protected:
   }
 
 private:
-  const Use *getHungOffOperands() const {
-    return *(reinterpret_cast<const Use *const *>(this) - 1);
+  struct HungOffData {
+    unsigned NumOperands;
+    Use *Operands;
+  };
+  const HungOffData &getHungOffData() const {
+    return reinterpret_cast<const HungOffData *>(this)[-1];
+  }
+  HungOffData &getHungOffData() {
+    return reinterpret_cast<HungOffData *>(this)[-1];
   }
 
-  Use *&getHungOffOperands() { return *(reinterpret_cast<Use **>(this) - 1); }
+  const Use *getHungOffOperands() const {
+    return getHungOffData().Operands;
+  }
+
+  Use *&getHungOffOperands() { return getHungOffData().Operands; }
+
+  unsigned getNumHungOffOperands() const {
+    return getHungOffData().NumOperands;
+  }
 
   const Use *getIntrusiveOperands() const {
     return reinterpret_cast<const Use *>(this) - NumUserOperands;
@@ -188,7 +207,9 @@ public:
     return getOperandList()[i];
   }
 
-  unsigned getNumOperands() const { return NumUserOperands; }
+  unsigned getNumOperands() const {
+    return HasHungOffUses ? getNumHungOffOperands() : NumUserOperands;
+  }
 
   /// Returns the descriptor co-allocated with this User instance.
   ArrayRef<const uint8_t> getDescriptor() const;
@@ -214,8 +235,7 @@ public:
   /// OperandList, so there's no issue in having the operand count change.
   void setNumHungOffUseOperands(unsigned NumOps) {
     assert(HasHungOffUses && "Must have hung off uses to use this method");
-    assert(NumOps < (1u << NumUserOperandsBits) && "Too many operands");
-    NumUserOperands = NumOps;
+    getHungOffData().NumOperands = NumOps;
   }
 
   /// A droppable user is a user for which uses can be dropped without affecting

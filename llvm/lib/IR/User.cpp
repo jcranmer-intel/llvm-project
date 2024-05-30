@@ -160,13 +160,14 @@ void *User::operator new(size_t Size, unsigned Us, unsigned DescBytes) {
 
 void *User::operator new(size_t Size) {
   // Allocate space for a single Use*
-  void *Storage = ::operator new(Size + sizeof(Use *));
-  Use **HungOffOperandList = static_cast<Use **>(Storage);
-  User *Obj = reinterpret_cast<User *>(HungOffOperandList + 1);
+  void *Storage = ::operator new(Size + sizeof(HungOffData));
+  HungOffData *Data = static_cast<HungOffData *>(Storage);
+  User *Obj = reinterpret_cast<User *>(Data + 1);
   Obj->NumUserOperands = 0;
   Obj->HasHungOffUses = true;
   Obj->HasDescriptor = false;
-  *HungOffOperandList = nullptr;
+  Data->Operands = nullptr;
+  Data->NumOperands = 0;
   return Obj;
 }
 
@@ -182,12 +183,13 @@ LLVM_NO_SANITIZE_MEMORY_ATTRIBUTE void User::operator delete(void *Usr) {
   User *Obj = static_cast<User *>(Usr);
   if (Obj->HasHungOffUses) {
     assert(!Obj->HasDescriptor && "not supported!");
+    HungOffData &Data = Obj->getHungOffData();
 
-    Use **HungOffOperandList = static_cast<Use **>(Usr) - 1;
+    Use *HungOffOperandList = Data.Operands;
     // drop the hung off uses.
-    Use::zap(*HungOffOperandList, *HungOffOperandList + Obj->getNumOperands(),
+    Use::zap(HungOffOperandList, HungOffOperandList + Obj->getNumOperands(),
              /* Delete */ true);
-    ::operator delete(HungOffOperandList);
+    ::operator delete(&Data);
   } else if (Obj->HasDescriptor) {
     Use *UseBegin = static_cast<Use *>(Usr) - Obj->getNumOperands();
     Use::zap(UseBegin, UseBegin + Obj->getNumOperands(), /* Delete */ false);
